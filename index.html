@@ -1,13 +1,348 @@
-<html>
-    <head>Welcome</head>
-    <style>body{bgcolor = sky-blue:}</style>
-    <body>
-        <h1>Attendece tracker</h1><br>
-        Emailaddress:<input type="text" id=" email-input" name="email1"><br>
-        Username:<input type="text" id = "user-input" name ="usr1"><br>
-        Password:<input type="password" id = "password-input" name = "pwd"><br>
-        <input type="submit" id="sign-in" value="Sign in">
-        <input type="reset" id="clear-in" value="clear">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    </body>
+<title>Attendance Tracker</title>
+
+<style>
+
+/* BODY */
+
+body{
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#0f172a,#1e3a8a,#38bdf8);
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* MAIN CONTAINER */
+
+.container{
+    width:430px;
+    background:rgba(255,255,255,0.12);
+    padding:30px;
+    border-radius:20px;
+    backdrop-filter:blur(10px);
+    box-shadow:0 0 20px rgba(0,0,0,0.3);
+    color:white;
+}
+
+/* HEADINGS */
+
+h1{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+/* INPUT FIELDS */
+
+input,select{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    border:none;
+    border-radius:10px;
+    outline:none;
+    font-size:16px;
+    box-sizing:border-box;
+}
+
+/* BUTTONS */
+
+button{
+    padding:12px 20px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+/* PAGE 1 BUTTONS */
+
+.login-btn{
+    width:100%;
+    margin-top:20px;
+    background:#22c55e;
+    color:white;
+}
+
+.login-btn:hover{
+    background:#16a34a;
+}
+
+.submit-btn{
+    width:100%;
+    margin-top:15px;
+    background:#2563eb;
+    color:white;
+}
+
+.submit-btn:hover{
+    background:#1d4ed8;
+}
+
+.bottom-buttons{
+    margin-top:20px;
+    display:flex;
+    justify-content:space-between;
+}
+
+.clear-btn{
+    background:#ef4444;
+    color:white;
+}
+
+.clear-btn:hover{
+    background:#dc2626;
+}
+
+.next-btn{
+    background:#f59e0b;
+    color:white;
+}
+
+.next-btn:hover{
+    background:#d97706;
+}
+
+/* PAGE 2 */
+
+#page2{
+    display:none;
+}
+
+.team-section{
+    margin-top:25px;
+}
+
+.radio-group{
+    margin-top:15px;
+}
+
+.radio-group label{
+    display:block;
+    margin-bottom:12px;
+    font-size:17px;
+}
+
+input[type="radio"]{
+    width:auto;
+    margin-right:10px;
+}
+
+.page2-buttons{
+    display:flex;
+    justify-content:space-between;
+    margin-top:30px;
+}
+
+.back-btn{
+    background:#ef4444;
+    color:white;
+}
+
+.back-btn:hover{
+    background:#dc2626;
+}
+
+.finish-btn{
+    background:#22c55e;
+    color:white;
+}
+
+.finish-btn:hover{
+    background:#16a34a;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- PAGE 1 -->
+
+    <div id="page1">
+
+        <h1>Welcome To Attendance Tracker</h1>
+
+        <form>
+
+            <!-- USERNAME -->
+
+            <input type="text"
+            placeholder="Username"
+            required>
+
+            <!-- EMAIL -->
+
+            <input type="email"
+            placeholder="E-mail ID"
+            required>
+
+            <!-- PASSWORD -->
+
+            <input type="password"
+            placeholder="Password"
+            required>
+
+            <!-- LOGIN BUTTON -->
+
+            <button type="button"
+            class="login-btn">
+                Login
+            </button>
+
+            <!-- SUBMIT BUTTON -->
+
+            <button type="submit"
+            class="submit-btn">
+                Submit
+            </button>
+
+            <!-- BOTTOM BUTTONS -->
+
+            <div class="bottom-buttons">
+
+                <!-- CLEAR BUTTON -->
+
+                <button type="reset"
+                class="clear-btn">
+                    Clear
+                </button>
+
+                <!-- NEXT PAGE BUTTON -->
+
+                <button type="button"
+                class="next-btn"
+                onclick="showPage2()">
+                    Next Page
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- PAGE 2 -->
+
+    <div id="page2">
+
+        <h1>Select School & Team</h1>
+
+        <!-- SCHOOL DROPDOWN -->
+
+        <label>Select Your School</label>
+
+        <select>
+
+            <option>
+                Bharath Matha School (Koppa)
+            </option>
+            <option> st.Mary's High School(</option>
+
+            <option>
+                Christ School (Thandavapura)
+            </option>
+
+            <option>
+                Christ School (Hassan)
+            </option>
+
+            <option>
+                Pushpa English School (Periyapatna)
+            </option>
+
+            <option>
+                Jeevadan High School (Yellareddy)
+            </option>
+
+        </select>
+
+        <!-- TEAM SECTION -->
+
+        <div class="team-section">
+
+            <label>Select Team Name</label>
+
+            <div class="radio-group">
+
+                <label>
+                    <input type="radio" name="team">
+                    Team Kenes
+                </label>
+
+                <label>
+                    <input type="radio" name="team">
+                    Team Tanishka
+                </label>
+
+                <label>
+                    <input type="radio" name="team">
+                    Team Ann
+                </label>
+
+            </div>
+
+        </div>
+
+        <!-- PAGE 2 BUTTONS -->
+
+        <div class="page2-buttons">
+
+            <!-- BACK BUTTON -->
+
+            <button class="back-btn"
+            onclick="showPage1()">
+                Back
+            </button>
+
+            <!-- FINISH BUTTON -->
+
+            <button class="finish-btn">
+                Finish
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- JAVASCRIPT -->
+
+<script>
+
+/* OPEN PAGE 2 */
+
+function showPage2(){
+
+    document.getElementById("page1").style.display="none";
+
+    document.getElementById("page2").style.display="block";
+
+}
+
+/* GO BACK TO PAGE 1 */
+
+function showPage1(){
+
+    document.getElementById("page2").style.display="none";
+
+    document.getElementById("page1").style.display="block";
+
+}
+
+</script>
+
+</body>
 </html>
