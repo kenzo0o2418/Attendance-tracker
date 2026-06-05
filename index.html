@@ -266,6 +266,27 @@ input[type="radio"]{
                 Jeevadan High School (Yellareddy)
             </option>
 
+
+            
+  <option value="other">Other</option>
+</select>
+
+<br><br>
+
+<input type="text" id="otherSchool" placeholder="Enter your school name" style="display:none;">
+
+<script>
+function showTextbox() {
+  let school = document.getElementById("school").value;
+  let textbox = document.getElementById("otherSchool");
+
+  if (school === "other") {
+    textbox.style.display = "block";
+  } else {
+    textbox.style.display = "none";
+  }
+}
+</script>
         </select>
 
         <!-- TEAM SECTION -->
