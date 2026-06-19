@@ -24,4 +24,3 @@ fetch(googleWebAppUrl, {
     console.error("Error syncing data:", error);
     alert("Oops! Something went wrong.");
 });
-
