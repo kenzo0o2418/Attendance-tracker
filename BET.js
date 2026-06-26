@@ -2,7 +2,7 @@ const googleWebAppUrl = "https://script.google.com/macros/s/AKfycbzETrV7tj8xKNpg
 document.addEventListener("DOMContentLoaded", function() {
 
     // 1. Sign Up Handler
-    const signupBtn = document.getElementById("signupBtn");
+    const signupBtn = document.getElementById("sign up");
     if (signupBtn) {
         signupBtn.addEventListener("click", function(event) {
             event.preventDefault(); 
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // 2. Log In Handler
-    const loginBtn = document.getElementById("loginBtn");
+    const loginBtn = document.getElementById("login");
     if (loginBtn) {
         loginBtn.addEventListener("click", function(event) {
             event.preventDefault(); 
