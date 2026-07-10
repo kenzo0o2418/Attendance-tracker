@@ -1,337 +1,1075 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Attendance Tracker</title>
-
 <style>
 
-/* BODY */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
 
 body{
-    margin:0;
-    padding:0;
-    font-family:Arial,sans-serif;
-    background:linear-gradient(135deg,#0f172a,#1e3a8a,#38bdf8);
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:30px;
+
+background:linear-gradient(135deg,#3b82f6,#06b6d4,#9333ea);
+background-size:300% 300%;
+animation:bgMove 12s infinite alternate;
+
 }
 
-/* MAIN CONTAINER */
+@keyframes bgMove{
+
+0%{background-position:left;}
+100%{background-position:right;}
+
+}
 
 .container{
-    width:430px;
-    background:rgba(255,255,255,0.12);
-    padding:30px;
-    border-radius:20px;
-    backdrop-filter:blur(10px);
-    box-shadow:0 0 20px rgba(0,0,0,0.3);
-    color:white;
+
+width:100%;
+max-width:900px;
+
+padding:35px;
+
+background:rgba(255,255,255,.15);
+
+backdrop-filter:blur(22px);
+
+border:1px solid rgba(255,255,255,.25);
+
+border-radius:25px;
+
+box-shadow:0 25px 45px rgba(0,0,0,.25);
+
+animation:slideUp .8s ease;
+
 }
 
-/* HEADINGS */
+@keyframes slideUp{
+
+from{
+
+opacity:0;
+transform:translateY(40px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
 
 h1{
-    text-align:center;
-    margin-bottom:25px;
+
+text-align:center;
+color:white;
+font-size:34px;
+font-weight:700;
+
 }
 
-/* INPUT FIELDS */
+.subtitle{
 
-input,select{
-    width:100%;
-    padding:12px;
-    margin-top:15px;
-    border:none;
-    border-radius:10px;
-    outline:none;
-    font-size:16px;
-    box-sizing:border-box;
+text-align:center;
+color:#f3f4f6;
+margin-top:8px;
+margin-bottom:25px;
+
 }
 
-/* BUTTONS */
+.live{
 
-button{
-    padding:12px 20px;
-    border:none;
-    border-radius:10px;
-    font-size:16px;
-    cursor:pointer;
-    transition:0.3s;
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+
+color:white;
+font-weight:600;
+
+margin-bottom:20px;
+
 }
 
-/* PAGE 1 BUTTONS */
+.progress-container{
 
-.login-btn{
-    width:100%;
-    margin-top:20px;
-    background:#22c55e;
-    color:white;
+height:14px;
+background:rgba(255,255,255,.4);
+border-radius:50px;
+overflow:hidden;
+margin-bottom:30px;
+
 }
 
-.login-btn:hover{
-    background:#16a34a;
+.progress{
+
+height:100%;
+width:0%;
+border-radius:50px;
+
+background:linear-gradient(90deg,#22c55e,#14b8a6);
+
+transition:.4s;
+
 }
 
-.submit-btn{
-    width:100%;
-    margin-top:15px;
-    background:#2563eb;
-    color:white;
+.section{
+
+margin-top:25px;
+
 }
 
-.submit-btn:hover{
-    background:#1d4ed8;
+.section h2{
+
+color:white;
+margin-bottom:18px;
+font-size:22px;
+
 }
 
-.bottom-buttons{
-    margin-top:20px;
-    display:flex;
-    justify-content:space-between;
+.row{
+
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+
 }
 
-.clear-btn{
-    background:#ef4444;
-    color:white;
+@media(max-width:700px){
+
+.row{
+
+grid-template-columns:1fr;
+
 }
 
-.clear-btn:hover{
-    background:#dc2626;
 }
 
-.next-btn{
-    background:#f59e0b;
-    color:white;
+.inputBox{
+
+display:flex;
+flex-direction:column;
+
 }
 
-.next-btn:hover{
-    background:#d97706;
+.inputBox label{
+
+color:white;
+font-weight:500;
+margin-bottom:8px;
+
 }
 
-/* PAGE 2 */
+.inputBox input,
+.inputBox select,
+.inputBox textarea{
 
-#page2{
-    display:none;
+padding:14px;
+
+border:none;
+
+outline:none;
+
+border-radius:14px;
+
+background:rgba(255,255,255,.92);
+
+font-size:15px;
+
+transition:.3s;
+
 }
 
-.team-section{
-    margin-top:25px;
+.inputBox input:focus,
+.inputBox select:focus,
+.inputBox textarea:focus{
+
+transform:scale(1.02);
+
+box-shadow:0 0 12px rgba(255,255,255,.7);
+
 }
 
-.radio-group{
-    margin-top:15px;
+textarea{
+
+resize:none;
+height:120px;
+
 }
 
-.radio-group label{
-    display:block;
-    margin-bottom:12px;
-    font-size:17px;
+.passwordBox{
+
+position:relative;
+
 }
 
-input[type="radio"]{
-    width:auto;
-    margin-right:10px;
+.passwordBox button{
+
+position:absolute;
+
+right:12px;
+
+top:43px;
+
+background:none;
+
+border:none;
+
+cursor:pointer;
+
+font-weight:600;
+
+color:#2563eb;
+
 }
 
-.page2-buttons{
-    display:flex;
-    justify-content:space-between;
-    margin-top:30px;
+/* ---------- Professional Radio Buttons ---------- */
+
+.radio-grid{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:12px;
+
+margin-top:5px;
+
 }
 
-.back-btn{
-    background:#ef4444;
-    color:white;
+.radio-item{
+
+display:flex;
+
+align-items:center;
+
+gap:10px;
+
+padding:10px 14px;
+
+background:rgba(255,255,255,.18);
+
+border:1px solid rgba(255,255,255,.25);
+
+border-radius:12px;
+
+color:white;
+
+cursor:pointer;
+
+transition:.3s;
+
 }
 
-.back-btn:hover{
-    background:#dc2626;
+.radio-item:hover{
+
+background:rgba(255,255,255,.28);
+
+transform:translateY(-2px);
+
 }
 
-.finish-btn{
-    background:#22c55e;
-    color:white;
+.radio-item input{
+
+accent-color:#22c55e;
+
+width:18px;
+
+height:18px;
+
+cursor:pointer;
+
 }
 
-.finish-btn:hover{
-    background:#16a34a;
+/* ---------------- Buttons ---------------- */
+
+button.submit{
+
+width:100%;
+
+padding:15px;
+
+margin-top:15px;
+
+border:none;
+
+border-radius:14px;
+
+font-size:16px;
+
+font-weight:600;
+
+cursor:pointer;
+
+background:linear-gradient(90deg,#2563eb,#06b6d4);
+
+color:white;
+
+transition:.3s;
+
+}
+
+button.submit:hover{
+
+transform:translateY(-3px);
+
+box-shadow:0 12px 25px rgba(0,0,0,.25);
+
+}
+
+/* ------------ Popup ------------ */
+
+.overlay{
+
+position:fixed;
+
+left:0;
+top:0;
+
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,.45);
+
+display:none;
+
+}
+
+.overlay.active{
+
+display:block;
+
+}
+
+.popup{
+
+position:fixed;
+
+left:50%;
+top:50%;
+
+transform:translate(-50%,-50%) scale(0);
+
+background:white;
+
+padding:30px;
+
+width:320px;
+
+border-radius:18px;
+
+text-align:center;
+
+transition:.4s;
+
+z-index:10;
+
+}
+
+.popup.active{
+
+transform:translate(-50%,-50%) scale(1);
+
+}
+
+.popup h2{
+
+color:#16a34a;
+
+margin-bottom:10px;
+
+}
+
+.popup button{
+
+margin-top:15px;
+
+padding:10px 25px;
+
+border:none;
+
+border-radius:10px;
+
+background:#2563eb;
+
+color:white;
+
+cursor:pointer;
+
+}
+
+.error{
+
+color:#fde047;
+
+font-size:13px;
+
+margin-top:5px;
+
+}
+
+.success{
+
+color:#4ade80;
+
+font-size:13px;
+
+margin-top:5px;
+
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-    <!-- PAGE 1 -->
+<h1>FET Attendance Tracker</h1>
 
-    <div id="page1">
+<p class="subtitle">
+Faculty Engagement Team Attendance Management System
+</p>
 
-        <h1>Welcome To Attendance Tracker</h1>
+<div class="live">
 
-        <form>
+<div id="date"></div>
 
-            <!-- USERNAME -->
+<div id="time"></div>
 
-            <input type="text"
-            placeholder="Username"
-            required>
+</div>
 
-            <!-- EMAIL -->
+<div class="progress-container">
 
-            <input type="email"
-            placeholder="E-mail ID"
-            required>
+<div class="progress" id="progressBar"></div>
 
-            <!-- PASSWORD -->
+</div>
+  <!-- ================= LOGIN SECTION ================= -->
 
-            <input type="password"
-            placeholder="Password"
-            required>
+<div class="section">
 
-            <!-- LOGIN BUTTON -->
+<h2>🔐 Login</h2>
 
-            <button type="button"
-            class="login-btn">
-                Login
-            </button>
+<div class="row">
 
-            <!-- SUBMIT BUTTON -->
+<div class="inputBox">
 
-            <button type="submit"
-            class="submit-btn">
-                Submit
-            </button>
+<label for="username">Username</label>
 
-            <!-- BOTTOM BUTTONS -->
+<input
+type="text"
+id="username"
+placeholder="Enter Username">
 
-            <div class="bottom-buttons">
+<small class="error" id="userError"></small>
 
-                <!-- CLEAR BUTTON -->
+</div>
 
-                <button type="reset"
-                class="clear-btn">
-                    Clear
-                </button>
+<div class="inputBox passwordBox">
 
-                <!-- NEXT PAGE BUTTON -->
+<label for="password">Password</label>
 
-                <button type="button"
-                class="next-btn"
-                onclick="showPage2()">
-                    Next Page
-                </button>
+<input
+type="password"
+id="password"
+placeholder="Enter Password">
 
-            </div>
+<button
+type="button"
+id="toggleBtn"
+onclick="togglePassword()">
 
-        </form>
+Show
 
-    </div>
+</button>
 
-    <!-- PAGE 2 -->
+<small class="error" id="passError"></small>
 
-    <div id="page2">
+</div>
 
-        <h1>Select School & Team</h1>
+</div>
 
-        <!-- SCHOOL DROPDOWN -->
+</div>
 
-        <label>Select Your School</label>
+<!-- ================= ATTENDANCE ================= -->
 
-        <select>
+<div class="section">
 
-            <option>
-                Bharath Matha School (Koppa)
-            </option>
-            <option> st.Mary's High School(</option>
+<h2>📝 Attendance Details</h2>
 
-            <option>
-                Christ School (Thandavapura)
-            </option>
+<div class="row">
 
-            <option>
-                Christ School (Hassan)
-            </option>
+<div class="inputBox">
 
-            <option>
-                Pushpa English School (Periyapatna)
-            </option>
+<label for="teacher">Teacher Name</label>
 
-            <option>
-                Jeevadan High School (Yellareddy)
-            </option>
+<input
+type="text"
+id="teacher"
+placeholder="Enter Teacher Name">
 
+<small class="error" id="teacherError"></small>
 
-            
-  <option value="other">Other</option>
+</div>
+
+<div class="inputBox">
+
+<label for="teacherID">Teacher ID</label>
+
+<input
+type="text"
+id="teacherID"
+placeholder="Enter Teacher ID">
+
+<small class="error" id="idError"></small>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="inputBox">
+
+<label for="school">School</label>
+
+<select id="school" onchange="showSchoolBox()">
+
+<option value="">Select School</option>
+
+<option>Christ School Thandavapura</option>
+<option>St. Joseph School</option>
+<option>Government High School</option>
+<option>JSS Public School</option>
+<option>NPS Mysore</option>
+<option>Kendriya Vidyalaya</option>
+<option value="Other">Other</option>
+
+</select>
+<input type="text" id="otherSchool" placeholder="Enter School Name" style="display:none;margin-top:10px;">
+<small class="error" id="schoolError"></small>
+
+</div>
+
+<div class="inputBox">
+
+<label>Team Selection</label>
+
+<div class="radio-grid">
+
+<label class="radio-item">
+<input type="radio" name="team" value="Kenes Team">
+<span>Kenes Team</span>
+</label>
+
+<label class="radio-item">
+<input type="radio" name="team" value="Ann Team">
+<span>Ann Team</span>
+</label>
+
+<label class="radio-item">
+<input type="radio" name="team" value="Thanishka Team">
+<span>Thanishka Team</span>
+</label>
+
+<label class="radio-item">
+<input type="radio" name="team" value="Other" onchange="showTeamBox()">
+<span>Other</span>
+</label>
+
+</div>
+<input type="text" id="otherTeam" placeholder="Enter Team Name" style="display:none;margin-top:10px;">
+<small class="error" id="teamError"></small>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="row">
+
+<div class="inputBox">
+
+<label>Attendance Status</label>
+
+<div class="radio-grid">
+
+<label class="radio-item">
+<input
+type="radio"
+name="attendance"
+value="Present">
+
+<span>Present</span>
+
+</label>
+
+<label class="radio-item">
+
+<input
+type="radio"
+name="attendance"
+value="Absent">
+
+<span>Absent</span>
+
+</label>
+
+</div>
+
+<small class="error" id="attendanceError"></small>
+
+</div>
+
+<div class="inputBox">
+
+<label for="session">Session</label>
+
+<select id="session">
+
+<option value="">Select Session</option>
+
+<option>Morning</option>
+<option>Afternoon</option>
+<option>Evening</option>
+
 </select>
 
-<br><br>
+<small class="error" id="sessionError"></small>
 
-<input type="text" id="otherSchool" placeholder="Enter your school name" style="display:none;">
+</div>
 
-<script>
-function showTextbox() {
-  let school = document.getElementById("school").value;
-  let textbox = document.getElementById("otherSchool");
+</div>
 
-  if (school === "other") {
-    textbox.style.display = "block";
-  } else {
-    textbox.style.display = "none";
-  }
+<br>
+
+<div class="inputBox">
+
+<label for="notes">Notes</label>
+
+<textarea
+id="notes"
+placeholder="Enter remarks or attendance notes..."></textarea>
+
+</div>
+
+<button
+class="submit"
+onclick="validateForm()">
+
+Submit Attendance
+
+</button>
+
+<button type="reset" class="submit" style="background:#ef4444;margin-top:10px;">Clear</button>
+
+</div>
+
+<!-- ================= SUCCESS POPUP ================= -->
+
+<div
+class="overlay"
+id="overlay">
+
+</div>
+
+<div
+class="popup"
+id="popup">
+
+<h2>✅ Success!</h2>
+
+<p>
+
+Attendance submitted successfully.
+
+</p>
+
+<button
+onclick="closePopup()">
+
+OK
+
+</button>
+
+</div>
+  <script>
+
+/* ===============================
+   LIVE DATE & TIME
+================================== */
+
+function updateDateTime(){
+
+const now = new Date();
+
+const options = {
+weekday:"long",
+year:"numeric",
+month:"long",
+day:"numeric"
+};
+
+document.getElementById("date").innerHTML =
+"📅 " + now.toLocaleDateString("en-IN",options);
+
+document.getElementById("time").innerHTML =
+"🕒 " + now.toLocaleTimeString();
+
 }
-</script>
-        </select>
 
-        <!-- TEAM SECTION -->
+setInterval(updateDateTime,1000);
 
-        <div class="team-section">
+updateDateTime();
 
-            <label>Select Team Name</label>
 
-            <div class="radio-group">
 
-                <label>
-                    <input type="radio" name="team">
-                    Team Kenes
-                </label>
+/* ===============================
+   SHOW / HIDE PASSWORD
+================================== */
 
-                <label>
-                    <input type="radio" name="team">
-                    Team Tanishka
-                </label>
+function togglePassword(){
 
-                <label>
-                    <input type="radio" name="team">
-                    Team Ann
-                </label>
+const password=document.getElementById("password");
 
-            </div>
+const btn=document.getElementById("toggleBtn");
 
-        </div>
+if(password.type==="password"){
 
-        <!-- PAGE 2 BUTTONS -->
+password.type="text";
 
-        <div class="page2-buttons">
+btn.innerHTML="Hide";
 
-            <!-- BACK BUTTON -->
+}
 
-            <button class="back-btn"
-            onclick="showPage1()">
-                Back
-            </button>
+else{
 
-            <!-- FINISH BUTTON -->
+password.type="password";
 
-            <button class="finish-btn">
-                Finish
-            </button>
+btn.innerHTML="Show";
+
+}
+
+}
+
+
+
+/* ===============================
+   PROGRESS BAR
+================================== */
+
+const allInputs=document.querySelectorAll(
+"input,select,textarea"
+);
+
+allInputs.forEach(input=>{
+
+input.addEventListener("input",updateProgress);
+
+input.addEventListener("change",updateProgress);
+
+});
+
+function updateProgress(){
+
+let total=7;
+
+let filled=0;
+
+
+/* Username */
+
+if(username.value.trim()!="")filled++;
+
+/* Password */
+
+if(password.value.trim()!="")filled++;
+
+/* Teacher */
+
+if(teacher.value.trim()!="")filled++;
+
+/* Teacher ID */
+
+if(teacherID.value.trim()!="")filled++;
+
+/* School */
+
+if(school.value!="")filled++;
+
+/* Team */
+
+if(document.querySelector("input[name='team']:checked"))filled++;
+
+/* Attendance */
+
+if(document.querySelector("input[name='attendance']:checked"))filled++;
+
+let percent=(filled/total)*100;
+
+document.getElementById("progressBar").style.width=
+percent+"%";
+
+}
+
+
+
+/* ===============================
+   CLEAR ERRORS
+================================== */
+
+function clearErrors(){
+
+document.querySelectorAll(".error").forEach(error=>{
+
+error.innerHTML="";
+
+});
+
+}
+
+
+
+/* ===============================
+   VALIDATION
+================================== */
+
+function validateForm(){
+
+clearErrors();
+
+let valid=true;
+
+
+
+if(username.value.trim()==""){
+
+userError.innerHTML="Username is required";
+
+valid=false;
+
+}
+
+
+
+if(password.value.trim()==""){
+
+passError.innerHTML="Password is required";
+
+valid=false;
+
+}
+
+
+
+if(teacher.value.trim()==""){
+
+teacherError.innerHTML="Teacher name is required";
+
+valid=false;
+
+}
+
+
+
+if(teacherID.value.trim()==""){
+
+idError.innerHTML="Teacher ID is required";
+
+valid=false;
+
+}
+
+
+
+if(school.value==""){
+
+schoolError.innerHTML="Select your school";
+
+valid=false;
+
+}
+
+
+
+if(!document.querySelector("input[name='team']:checked")){
+
+teamError.innerHTML="Select a team";
+
+valid=false;
+
+}
+
+
+
+if(!document.querySelector("input[name='attendance']:checked")){
+
+attendanceError.innerHTML="Choose Present or Absent";
+
+valid=false;
+
+}
+
+
+
+if(session.value==""){
+
+sessionError.innerHTML="Select session";
+
+valid=false;
+
+}
+
+
+
+if(valid){
+
+showPopup();
+
+}
+
+}
+
+
+
+/* ===============================
+   SUCCESS POPUP
+================================== */
+
+function showPopup(){
+
+document.getElementById("popup").classList.add("active");
+
+document.getElementById("overlay").classList.add("active");
+
+}
+
+
+
+/* ===============================
+   CLOSE POPUP
+================================== */
+
+function closePopup(){
+
+document.getElementById("popup").classList.remove("active");
+
+document.getElementById("overlay").classList.remove("active");
+
+document.querySelector("form")?.reset();
+
+document.querySelectorAll("input").forEach(input=>{
+
+if(input.type==="radio"){
+
+input.checked=false;
+
+}
+
+});
+
+document.querySelectorAll("input[type=text],input[type=password]").forEach(input=>{
+
+input.value="";
+
+});
+
+document.querySelectorAll("textarea").forEach(t=>{
+
+t.value="";
+
+});
+
+document.querySelectorAll("select").forEach(s=>{
+
+s.selectedIndex=0;
+
+});
+
+
+function showSchoolBox(){
+document.getElementById('otherSchool').style.display=
+document.getElementById('school').value==='Other'?'block':'none';
+}
+function showTeamBox(){
+let r=document.querySelector("input[name='team']:checked");
+document.getElementById('otherTeam').style.display=(r&&r.value==='Other')?'block':'none';
+}
+document.addEventListener('change',e=>{
+if(e.target.name==='team')showTeamBox();
+});
+
+updateProgress();
+
+}
+
+
+
+/* ===============================
+   ENTER KEY SUPPORT
+================================== */
+
+document.addEventListener("keydown",function(e){
+
+if(e.key==="Enter"){
+
+validateForm();
+
+}
+
+});
+
+
+
+/* ===============================
+   INITIALIZE
+================================== */
+
+
+function showSchoolBox(){
+document.getElementById('otherSchool').style.display=
+document.getElementById('school').value==='Other'?'block':'none';
+}
+function showTeamBox(){
+let r=document.querySelector("input[name='team']:checked");
+document.getElementById('otherTeam').style.display=(r&&r.value==='Other')?'block':'none';
+}
+document.addEventListener('change',e=>{
+if(e.target.name==='team')showTeamBox();
+});
+
+updateProgress();
+
+</script>  <div id="page3">
+
+        <h2>Attendance Management System</h2>
+
+        <div class="card">
+
+            <h3>Attendance Summary</h3>
+
+            <p>Total Attendance: 85%</p>
+
+            <label>Chart Type</label>
+
+            <select id="chartType">
+                <option value="pie">Pie Chart</option>
+                <option value="line">Line Graph</option>
+            </select>
+
+            <canvas id="attendanceChart"></canvas>
 
         </div>
 
@@ -339,27 +1077,74 @@ function showTextbox() {
 
 </div>
 
-<!-- JAVASCRIPT -->
-
 <script>
 
-/* OPEN PAGE 2 */
-
 function showPage2(){
-
     document.getElementById("page1").style.display="none";
-
     document.getElementById("page2").style.display="block";
-
 }
 
-/* GO BACK TO PAGE 1 */
-
 function showPage1(){
-
     document.getElementById("page2").style.display="none";
-
     document.getElementById("page1").style.display="block";
+}
+
+function showPage3(){
+    document.getElementById("page2").style.display="none";
+    document.getElementById("page3").style.display="block";
+
+    createChart();
+}
+
+function showTextbox(){
+
+    let school=document.getElementById("school").value;
+    let textbox=document.getElementById("otherSchool");
+
+    if(school==="other"){
+        textbox.style.display="block";
+    }else{
+        textbox.style.display="none";
+    }
+}
+
+let chart;
+
+function createChart(){
+
+    const ctx=document.getElementById("attendanceChart");
+
+    chart=new Chart(ctx,{
+        type:"pie",
+        data:{
+            labels:["Present","Absent"],
+            datasets:[{
+                data:[85,15],
+                backgroundColor:["green","red"]
+            }]
+        }
+    });
+
+    document.getElementById("chartType").addEventListener("change",function(){
+
+        chart.destroy();
+
+        chart=new Chart(ctx,{
+            type:this.value,
+            data:{
+                labels:["Present","Absent"],
+                datasets:[{
+                    label:"Attendance",
+                    data:[85,15],
+                    backgroundColor:["green","red"],
+                    borderColor:["green","red"],
+                    borderWidth:2,
+                    fill:false
+                }]
+            }
+        });
+
+    });
 
 }
 
