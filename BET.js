@@ -84,3 +84,20 @@ function sendToGoogle(dataPackage) {
         alert("Network pipeline failure. Check console log parameters.");
     });
 }
+
+const SubmitAttendanceBtn = document.getElementByld("submitAttendanceBtn");
+  if(submitAttendanceBtn) {
+      submitAttendanceBtn.addEventListener("click", fuction(event)
+                                          }
+                                         event.preventDefault();
+                                         letAttendanceRecords = [];
+                                         let rows = document.querySelectorAll(".attendance-row");
+                                         rows.forEach(row => {
+                                             let name = row.querySelector(".student-name").innerText;
+                                             let statusSelect = row.querySelector(".status-select").value;
+                                             
+
+                                          
+    
+      
+ 
