@@ -85,16 +85,31 @@ function sendToGoogle(dataPackage) {
     });
 }
 
-const SubmitAttendanceBtn = document.getElementByld("submitAttendanceBtn");
-  if(submitAttendanceBtn) {
-      submitAttendanceBtn.addEventListener("click", fuction(event)
-                                          }
-                                         event.preventDefault();
-                                         letAttendanceRecords = [];
-                                         let rows = document.querySelectorAll(".attendance-row");
-                                         rows.forEach(row => {
-                                             let name = row.querySelector(".student-name").innerText;
-                                             let statusSelect = row.querySelector(".status-select").value;
+const submitAttendanceBtn = document.getElementById("submitAttendanceBtn");
+    if (submitAttendanceBtn) {
+        submitAttendanceBtn.addEventListener("click", function(event) {
+            event.preventDefault();
+            
+            let attendanceRecords = [];
+            let rows = document.querySelectorAll(".attendance-row");
+            
+            rows.forEach(row => {
+                let name = row.querySelector(".student-name").innerText;
+                let statusSelect = row.querySelector(".status-select").value;
+                attendanceRecords.push({ "name": name, "status": statusSelect });
+            });
+
+            let attendancePackage = {
+                "action": "submit_attendance",
+                "batch": sessionBatch,
+                "markedBy": loggedInUserGmail,
+                "records": attendanceRecords
+            };
+
+            sendToGoogle(attendancePackage);
+        });
+    }
+});
                                              
 
                                           
