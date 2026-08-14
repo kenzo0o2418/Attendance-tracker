@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WeJump Attendance Portal</title>
-    <!-- Chart.js Library -->
+
+    <!-- External Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom Script (defer ensures DOM loads before JS executes) -->
+    <script src="script.js" defer></script>
 
     <style>
         body {
@@ -84,10 +88,10 @@
         }
 
         .clear-btn, .back-btn { background: #ef4444; color: white; }
-        .clear-btn:hover, .back-btn:hover { background: #dc2626; }
+        .clear-btn:hover { background: #dc2626; }
 
         .next-btn, .finish-btn { background: #f59e0b; color: white; }
-        .next-btn:hover, .finish-btn:hover { background: #d97706; }
+        .next-btn:hover { background: #d97706; }
 
         .submit-btn {
             width: 100%;
@@ -97,7 +101,6 @@
         }
         .submit-btn:hover { background: #1d4ed8; }
 
-        /* Dynamic Row Styling for Leader Console */
         .attendance-row {
             display: flex;
             justify-content: space-between;
@@ -119,6 +122,13 @@
             max-height: 380px;
             margin-top: 15px;
         }
+
+        .status-msg {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #fde047;
+        }
     </style>
 </head>
 <body>
@@ -132,11 +142,11 @@
         <div id="page1">
             <h1>WeJump Portal</h1>
             
-            <!-- Direct Login Box -->
+            <!-- Login Block -->
             <div style="border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; margin-bottom: 20px;">
                 <p style="text-align:center; margin:0 0 10px 0; font-size:14px;">Existing Users</p>
-                <input type="email" id="loginGmail" placeholder="E-mail ID" required>
-                <input type="password" id="loginPassword" placeholder="Password" required>
+                <input type="email" id="loginGmail" placeholder="E-mail ID">
+                <input type="password" id="loginPassword" placeholder="Password">
                 <button type="button" id="loginBtn" class="login-btn">Login</button>
             </div>
 
@@ -147,9 +157,10 @@
             <input type="password" id="signupPassword" placeholder="Create Password">
 
             <div class="bottom-buttons">
-                <button type="reset" class="clear-btn" onclick="clearAuthInputs()">Clear</button>
+                <button type="button" class="clear-btn" onclick="clearAuthInputs()">Clear</button>
                 <button type="button" class="next-btn" onclick="showPage2()">Next Page</button>
             </div>
+            <div id="authStatus" class="status-msg"></div>
         </div>
 
         <!-- PAGE 2: SCHOOL & TEAM SELECTION -->
@@ -179,9 +190,9 @@
 
             <div class="page2-buttons">
                 <button type="button" class="back-btn" onclick="showPage1()">Back</button>
-                <!-- FINISH BUTTON HAS ID 'signupBtn' SO JS TRIGGERS POST TO GOOGLE -->
                 <button type="button" id="signupBtn" class="finish-btn">Finish & Register</button>
             </div>
+            <div id="signupStatus" class="status-msg"></div>
         </div>
     </div>
 
@@ -197,10 +208,10 @@
         </div>
         <hr style="border-color: rgba(255,255,255,0.2);">
         
-        <!-- Roster rows get dynamically generated here by JS -->
         <div id="studentList"></div>
 
-        <button id="submitAttendanceBtn" class="submit-btn">Submit Attendance</button>
+        <button type="button" id="submitAttendanceBtn" class="submit-btn">Submit Attendance</button>
+        <div id="attendanceStatus" class="status-msg"></div>
     </div>
 
 
@@ -219,92 +230,6 @@
     </div>
 
 </div>
-
-<!-- FRONTEND UI SWITCHING LOGIC -->
-<script>
-    function showPage1() {
-        document.getElementById("page2").style.display = "none";
-        document.getElementById("page1").style.display = "block";
-    }
-
-    function showPage2() {
-        let name = document.getElementById("signupName").value.trim();
-        let email = document.getElementById("signupGmail").value.trim();
-        let pass = document.getElementById("signupPassword").value;
-
-        if (!name || !email || !pass) {
-            alert("Please fill out Name, Email, and Password before proceeding to Page 2.");
-            return;
-        }
-        document.getElementById("page1").style.display = "none";
-        document.getElementById("page2").style.display = "block";
-    }
-
-    function clearAuthInputs() {
-        document.getElementById("loginGmail").value = "";
-        document.getElementById("loginPassword").value = "";
-        document.getElementById("signupName").value = "";
-        document.getElementById("signupGmail").value = "";
-        document.getElementById("signupPassword").value = "";
-    }
-
-    // Chart Renderer for Student View
-    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const attendance = [1, 1, 0, 1, 1, 1];
-    let chart;
-
-    function renderStudentChart(type) {
-        const ctx = document.getElementById("attendanceChart");
-        if (chart) chart.destroy();
-
-        Chart.defaults.color = "#ffffff";
-
-        if (type === "line") {
-            chart = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: days,
-                    datasets: [{
-                        label: "Attendance Status",
-                        data: attendance,
-                        borderColor: "#38bdf8",
-                        backgroundColor: "rgba(56, 189, 248, 0.3)",
-                        borderWidth: 3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: { ticks: { color: '#ffffff' } },
-                        y: {
-                            min: 0, max: 1,
-                            ticks: {
-                                stepSize: 1, color: '#ffffff',
-                                callback: val => val === 1 ? "Present" : "Absent"
-                            }
-                        }
-                    }
-                }
-            });
-        } else {
-            chart = new Chart(ctx, {
-                type: "pie",
-                data: {
-                    labels: ["Present", "Absent"],
-                    datasets: [{
-                        data: [5, 1],
-                        backgroundColor: ["#22c55e", "#ef4444"]
-                    }]
-                }
-            });
-        }
-    }
-
-    document.getElementById("chartType").addEventListener("change", function() {
-        renderStudentChart(this.value);
-    });
-</script>
 
 </body>
 </html>
