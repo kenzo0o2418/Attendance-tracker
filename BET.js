@@ -102,12 +102,12 @@ async function sendToGoogle(payload) {
 
     const response = await fetch(WEB_APP_URL, {
         method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(payload)
     });
+    
     return await response.json();
 }
-
 // --- EVENT HANDLERS ---
 
 async function handleLogin(e) {
