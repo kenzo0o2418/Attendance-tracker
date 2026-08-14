@@ -1,13 +1,12 @@
 // ==========================================
-// script.js - Separate JavaScript File
+// Web App Backend Config
 // ==========================================
-
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzwnT-CZysv1X97996OeV9wPi8YMUnJMq6bIr2gZPCuMuSK0_Qm2yeJpOOFWr0P5_zI/exec";
 
 let currentUser = null;
 let chartInstance = null;
 
-// --- GLOBAL PAGE NAVIGATION (Exposed to window for inline onclicks) ---
+// --- GLOBAL PAGE NAVIGATION (Exposed to window for inline HTML onclicks) ---
 window.showPage1 = function() {
     document.getElementById("page2").style.display = "none";
     document.getElementById("page1").style.display = "block";
@@ -294,34 +293,3 @@ function renderStudentChart(type) {
         });
     }
 }
-
-const submitAttendanceBtn = document.getElementById("submitAttendanceBtn");
-    if (submitAttendanceBtn) {
-        submitAttendanceBtn.addEventListener("click", function(event) {
-            event.preventDefault();
-            
-            let attendanceRecords = [];
-            let rows = document.querySelectorAll(".attendance-row");
-            
-            rows.forEach(row => {
-                let name = row.querySelector(".student-name").innerText;
-                let statusSelect = row.querySelector(".status-select").value;
-                attendanceRecords.push({ "name": name, "status": statusSelect });
-            });
-
-            let attendancePackage = {
-                "action": "submit_attendance",
-                "batch": sessionBatch,
-                "markedBy": loggedInUserGmail,
-                "records": attendanceRecords
-            };
-
-            sendToGoogle(attendancePackage);
-        });
-    }
-}                               
-
-                                          
-    
-      
- 
