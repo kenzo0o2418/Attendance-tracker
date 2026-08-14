@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeJump Attendance Portal</title>
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e3a8a, #38bdf8);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 440px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            color: white;
+            transition: width 0.3s ease;
+        }
+
+        .container.wide {
+            width: 90%;
+            max-width: 750px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 10px;
+            outline: none;
+            font-size: 15px;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .login-btn {
+            width: 100%;
+            margin-top: 15px;
+            background: #22c55e;
+            color: white;
+        }
+        .login-btn:hover { background: #16a34a; }
+
+        .bottom-buttons, .page2-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .clear-btn, .back-btn { background: #ef4444; color: white; }
+        .clear-btn:hover, .back-btn:hover { background: #dc2626; }
+
+        .next-btn, .finish-btn { background: #f59e0b; color: white; }
+        .next-btn:hover, .finish-btn:hover { background: #d97706; }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 20px;
+            background: #2563eb;
+            color: white;
+        }
+        .submit-btn:hover { background: #1d4ed8; }
+
+        /* Dynamic Row Styling for Leader Console */
+        .attendance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .attendance-row select {
+            width: 120px;
+            margin-top: 0;
+            padding: 6px;
+        }
+
+        canvas {
+            width: 100% !important;
+            max-height: 380px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="mainContainer">
+
+    <!-- ================= 1. AUTHENTICATION FLOW ================= -->
+    <div id="authContainer">
+        
+        <!-- PAGE 1: CREDENTIALS & LOGIN -->
+        <div id="page1">
+            <h1>WeJump Portal</h1>
+            
+            <!-- Direct Login Box -->
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; margin-bottom: 20px;">
+                <p style="text-align:center; margin:0 0 10px 0; font-size:14px;">Existing Users</p>
+                <input type="email" id="loginGmail" placeholder="E-mail ID" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button type="button" id="loginBtn" class="login-btn">Login</button>
+            </div>
+
+            <!-- New Account Step 1 -->
+            <p style="text-align:center; margin:0; font-size:14px;">New Registration (Step 1)</p>
+            <input type="text" id="signupName" placeholder="Full Name">
+            <input type="email" id="signupGmail" placeholder="E-mail ID">
+            <input type="password" id="signupPassword" placeholder="Create Password">
+
+            <div class="bottom-buttons">
+                <button type="reset" class="clear-btn" onclick="clearAuthInputs()">Clear</button>
+                <button type="button" class="next-btn" onclick="showPage2()">Next Page</button>
+            </div>
+        </div>
+
+        <!-- PAGE 2: SCHOOL & TEAM SELECTION -->
+        <div id="page2" style="display: none;">
+            <h1>Select Details</h1>
+
+            <label for="signupSchool">School</label>
+            <select id="signupSchool">
+                <option value="Bharath Matha School">Bharath Matha School (Koppa)</option>
+                <option value="St. Marys High School">St. Mary's High School</option>
+                <option value="Christ School Thandavapura">Christ School (Thandavapura)</option>
+                <option value="Christ School Hassan">Christ School (Hassan)</option>
+            </select>
+
+            <label for="signupRole">Account Role</label>
+            <select id="signupRole">
+                <option value="Student">Student</option>
+                <option value="Leader">Team Leader</option>
+            </select>
+
+            <label for="signupBatch">Assigned Team / Batch</label>
+            <select id="signupBatch">
+                <option value="Team Kenes">Team Kenes</option>
+                <option value="Team Tanishka">Team Tanishka</option>
+                <option value="Team Ann">Team Ann</option>
+            </select>
+
+            <div class="page2-buttons">
+                <button type="button" class="back-btn" onclick="showPage1()">Back</button>
+                <!-- FINISH BUTTON HAS ID 'signupBtn' SO JS TRIGGERS POST TO GOOGLE -->
+                <button type="button" id="signupBtn" class="finish-btn">Finish & Register</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= 2. LEADER DASHBOARD (ATTENDANCE TAKER) ================= -->
+    <div id="attendanceContainer" style="display: none;">
+        <h2>Team Attendance Console</h2>
+        <hr style="border-color: rgba(255,255,255,0.2);">
+        <div style="margin-bottom: 15px; font-size: 14px;">
+            <p style="margin:4px 0;"><strong>User:</strong> <span id="displayEmail">-</span></p>
+            <p style="margin:4px 0;"><strong>Role:</strong> <span id="displayRole">-</span></p>
+            <p style="margin:4px 0;"><strong>Batch:</strong> <span id="displayBatch">-</span></p>
+        </div>
+        <hr style="border-color: rgba(255,255,255,0.2);">
+        
+        <!-- Roster rows get dynamically generated here by JS -->
+        <div id="studentList"></div>
+
+        <button id="submitAttendanceBtn" class="submit-btn">Submit Attendance</button>
+    </div>
+
+
+    <!-- ================= 3. STUDENT DASHBOARD (PROGRESS GRAPH) ================= -->
+    <div id="studentContainer" style="display: none;">
+        <h2>Student Attendance Progress</h2>
+        <p id="studentWelcomeText" style="text-align: center; font-size:14px;"></p>
+
+        <label for="chartType">Select Chart Type:</label>
+        <select id="chartType">
+            <option value="line">Line Chart</option>
+            <option value="pie">Pie Chart</option>
+        </select>
+
+        <canvas id="attendanceChart"></canvas>
+    </div>
+
+</div>
+
+<!-- FRONTEND UI SWITCHING LOGIC -->
+<script>
+    function showPage1() {
+        document.getElementById("page2").style.display = "none";
+        document.getElementById("page1").style.display = "block";
+    }
+
+    function showPage2() {
+        let name = document.getElementById("signupName").value.trim();
+        let email = document.getElementById("signupGmail").value.trim();
+        let pass = document.getElementById("signupPassword").value;
+
+        if (!name || !email || !pass) {
+            alert("Please fill out Name, Email, and Password before proceeding to Page 2.");
+            return;
+        }
+        document.getElementById("page1").style.display = "none";
+        document.getElementById("page2").style.display = "block";
+    }
+
+    function clearAuthInputs() {
+        document.getElementById("loginGmail").value = "";
+        document.getElementById("loginPassword").value = "";
+        document.getElementById("signupName").value = "";
+        document.getElementById("signupGmail").value = "";
+        document.getElementById("signupPassword").value = "";
+    }
+
+    // Chart Renderer for Student View
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const attendance = [1, 1, 0, 1, 1, 1];
+    let chart;
+
+    function renderStudentChart(type) {
+        const ctx = document.getElementById("attendanceChart");
+        if (chart) chart.destroy();
+
+        Chart.defaults.color = "#ffffff";
+
+        if (type === "line") {
+            chart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: "Attendance Status",
+                        data: attendance,
+                        borderColor: "#38bdf8",
+                        backgroundColor: "rgba(56, 189, 248, 0.3)",
+                        borderWidth: 3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { ticks: { color: '#ffffff' } },
+                        y: {
+                            min: 0, max: 1,
+                            ticks: {
+                                stepSize: 1, color: '#ffffff',
+                                callback: val => val === 1 ? "Present" : "Absent"
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            chart = new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: ["Present", "Absent"],
+                    datasets: [{
+                        data: [5, 1],
+                        backgroundColor: ["#22c55e", "#ef4444"]
+                    }]
+                }
+            });
+        }
+    }
+
+    document.getElementById("chartType").addEventListener("change", function() {
+        renderStudentChart(this.value);
+    });
+</script>
+
+</body>
+</html>
