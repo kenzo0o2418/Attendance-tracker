@@ -92,12 +92,11 @@ function routeUser(user) {
 // --- BACKEND DISPATCHER ---
 async function sendToGoogle(payload) {
     try {
-        const response = await fetch(WEB_APP_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "text/plain;charset=utf-8"
-            },
-            body: JSON.stringify(payload),
+        // Encode payload into URL query parameter to bypass CORS POST restrictions
+        const targetUrl = `${WEB_APP_URL}?payload=${encodeURIComponent(JSON.stringify(payload))}`;
+        
+        const response = await fetch(targetUrl, {
+            method: "GET",
             redirect: "follow"
         });
 
