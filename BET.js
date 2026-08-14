@@ -319,7 +319,7 @@ const submitAttendanceBtn = document.getElementById("submitAttendanceBtn");
             sendToGoogle(attendancePackage);
         });
     }
-});                               
+}                               
 
                                           
     
