@@ -2,7 +2,7 @@
 // script.js - Separate JavaScript File
 // ==========================================
 
-const WEB_APP_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzwnT-CZysv1X97996OeV9wPi8YMUnJMq6bIr2gZPCuMuSK0_Qm2yeJpOOFWr0P5_zI/exec";
 
 let currentUser = null;
 let chartInstance = null;
@@ -294,3 +294,35 @@ function renderStudentChart(type) {
         });
     }
 }
+
+const submitAttendanceBtn = document.getElementById("submitAttendanceBtn");
+    if (submitAttendanceBtn) {
+        submitAttendanceBtn.addEventListener("click", function(event) {
+            event.preventDefault();
+            
+            let attendanceRecords = [];
+            let rows = document.querySelectorAll(".attendance-row");
+            
+            rows.forEach(row => {
+                let name = row.querySelector(".student-name").innerText;
+                let statusSelect = row.querySelector(".status-select").value;
+                attendanceRecords.push({ "name": name, "status": statusSelect });
+            });
+
+            let attendancePackage = {
+                "action": "submit_attendance",
+                "batch": sessionBatch,
+                "markedBy": loggedInUserGmail,
+                "records": attendanceRecords
+            };
+
+            sendToGoogle(attendancePackage);
+        });
+    }
+});
+                                             
+
+                                          
+    
+      
+ 
