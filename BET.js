@@ -1,7 +1,7 @@
 // ==========================================
 // Web App Backend Config
 // ==========================================
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx2pKfFp1HPlmDzDR8d0szcP19GyOw4M8_aa8OpjqFulWtOypZ0kNKOfFndsv2AclgP/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzno5aSRM3kVocoGVvtpcsbR4RlftEAQkm5fKlgq7IltAi3MbzNVcWxTJuUNFT7oMRH/exec";
 
 let currentUser = null;
 let chartInstance = null;
@@ -92,24 +92,20 @@ function routeUser(user) {
 // --- BACKEND DISPATCHER ---
 async function sendToGoogle(payload) {
     try {
-        // Send data using URLSearchParams to avoid preflight CORS checks
-        const formData = new URLSearchParams();
-        formData.append("payload", JSON.stringify(payload));
-
         const response = await fetch(WEB_APP_URL, {
             method: "POST",
-            mode: "no-cors", // Bypasses browser CORS policy
             headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Content-Type": "text/plain;charset=utf-8"
             },
-            body: formData
+            body: JSON.stringify(payload),
+            redirect: "follow"
         });
 
-        // no-cors returns an opaque response, assuming success if execution completed
-        return { success: true };
-    } catch (err) {
-        console.error("Fetch failed:", err);
-        return { success: false, message: "Network connection failed." };
+        const rawText = await response.text();
+        return JSON.parse(rawText);
+    } catch (error) {
+        console.error("sendToGoogle error:", error);
+        return { success: false, message: "Network connection or response error." };
     }
 }
 // --- EVENT HANDLERS ---
