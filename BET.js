@@ -1,143 +1,269 @@
-var spreadsheetId = "1-weatenEXUbU4nKx67hvOAdK7htgsPC5qMqEOaSNXcE"; 
+// ==========================================
+// Web App Backend Config
+// ==========================================
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzno5aSRM3kVocoGVvtpcsbR4RlftEAQkm5fKlgq7IltAi3MbzNVcWxTJuUNFT7oMRH/exec";
 
-function doGet(e) {
-  try {
-    var rawPayload = e.parameter.payload;
-    if (!rawPayload) {
-      return createJsonResponse({ success: false, message: "No payload provided." });
+let currentUser = null;
+let chartInstance = null;
+
+// --- GLOBAL PAGE NAVIGATION ---
+window.showPage1 = function() {
+    document.getElementById("page2").style.display = "none";
+    document.getElementById("page1").style.display = "block";
+};
+
+window.showPage2 = function() {
+    document.getElementById("page1").style.display = "none";
+    document.getElementById("page2").style.display = "block";
+};
+
+window.clearAuthInputs = function() {
+    if (document.getElementById("loginGmail")) document.getElementById("loginGmail").value = "";
+    if (document.getElementById("loginPassword")) document.getElementById("loginPassword").value = "";
+    if (document.getElementById("signupName")) document.getElementById("signupName").value = "";
+    if (document.getElementById("signupGmail")) document.getElementById("signupGmail").value = "";
+    if (document.getElementById("signupPassword")) document.getElementById("signupPassword").value = "";
+    const statusDiv = document.getElementById("authStatus");
+    if (statusDiv) statusDiv.innerText = "";
+};
+
+// --- DOM INITIALIZATION ---
+document.addEventListener("DOMContentLoaded", () => {
+    const loginBtn = document.getElementById("loginBtn");
+    if (loginBtn) loginBtn.addEventListener("click", handleLogin);
+
+    const signupBtn = document.getElementById("signupBtn");
+    if (signupBtn) signupBtn.addEventListener("click", handleRegistration);
+
+    const submitAttendanceBtn = document.getElementById("submitAttendanceBtn");
+    if (submitAttendanceBtn) submitAttendanceBtn.addEventListener("click", handleSubmitAttendance);
+
+    const chartTypeSelect = document.getElementById("chartType");
+    if (chartTypeSelect) {
+        chartTypeSelect.addEventListener("change", (e) => {
+            renderStudentChart(e.target.value);
+        });
     }
+});
 
-    var jsonPacket = JSON.parse(rawPayload);
-    var action = jsonPacket.action;
-    var ss = SpreadsheetApp.openById(spreadsheetId);
+// --- ROUTING ENGINE ---
+function routeUser(user) {
+    currentUser = user;
+    document.getElementById("authContainer").style.display = "none";
 
-    // 1. REGISTRATION LOGIC
-    if (action === "register") {
-      var usersSheet = ss.getSheetByName("Users");
-      if (!usersSheet) {
-        usersSheet = ss.insertSheet("Users");
-        usersSheet.appendRow(["Name", "Email", "Password", "School", "Role", "Batch"]);
-      }
-      
-      var data = usersSheet.getDataRange().getValues();
-      for (var i = 1; i < data.length; i++) {
-        if (data[i][1] === jsonPacket.email) {
-          return createJsonResponse({ success: false, message: "User with this email already exists." });
-        }
-      }
-      
-      usersSheet.appendRow([
-        jsonPacket.name, 
-        jsonPacket.email, 
-        jsonPacket.password, 
-        jsonPacket.school, 
-        jsonPacket.role, 
-        jsonPacket.batch
-      ]);
-      
-      if (jsonPacket.role === "Student" && jsonPacket.batch && jsonPacket.batch !== "None") {
-        var batchSheet = ss.getSheetByName(jsonPacket.batch);
-        if (!batchSheet) {
-          batchSheet = ss.insertSheet(jsonPacket.batch);
-          batchSheet.getRange(1, 1).setValue("Student Name");
-        }
-        batchSheet.appendRow([jsonPacket.name]);
-      }
-      
-      return createJsonResponse({ success: true, message: "Registration successful!" });
-    }
-
-    // 2. LOGIN LOGIC
-    else if (action === "login") {
-      var usersSheet = ss.getSheetByName("Users");
-      if (!usersSheet) return createJsonResponse({ success: false, message: "User database empty." });
-      
-      var data = usersSheet.getDataRange().getValues();
-      for (var i = 1; i < data.length; i++) {
-        if (data[i][1].toString().toLowerCase() === jsonPacket.email.toString().toLowerCase()) {
-          if (data[i][2].toString() === jsonPacket.password.toString()) {
-            return createJsonResponse({
-              success: true,
-              user: {
-                name: data[i][0],
-                email: data[i][1],
-                role: data[i][3],
-                batch: data[i][4]
-              }
-            });
-          } else {
-            return createJsonResponse({ success: false, message: "Incorrect password." });
-          }
-        }
-      }
-      return createJsonResponse({ success: false, message: "User not found." });
-    }
-
-    // 3. FETCH ROSTER LOGIC
-    else if (action === "getStudents") {
-      var batchSheet = ss.getSheetByName(jsonPacket.batch);
-      var students = [];
-      
-      if (batchSheet) {
-        var data = batchSheet.getDataRange().getValues();
-        for (var i = 1; i < data.length; i++) {
-          if (data[i][0]) {
-            students.push({ id: "S" + i, name: data[i][0] });
-          }
-        }
-      }
-      return createJsonResponse({ success: true, students: students });
-    }
-
-    // 4. ATTENDANCE SUBMISSION
-    else if (action === "submitAttendance") {
-      var batchSheet = ss.getSheetByName(jsonPacket.batch);
-      if (!batchSheet) {
-        batchSheet = ss.insertSheet(jsonPacket.batch);
-        batchSheet.getRange(1, 1).setValue("Student Name");
-      }
-      
-      var today = jsonPacket.date || new Date().toISOString().split("T")[0];
-      var data = batchSheet.getDataRange().getValues();
-      var headers = data[0] || ["Student Name"];
-      
-      var dateColumnIndex = headers.indexOf(today) + 1; 
-      if (dateColumnIndex === 0) {
-        dateColumnIndex = batchSheet.getLastColumn() + 1;
-        batchSheet.getRange(1, dateColumnIndex).setValue(today);
-      }
-      
-      var records = jsonPacket.records;
-      for (var r = 0; r < records.length; r++) {
-        var studentName = records[r].studentName;
-        var status = records[r].status;
+    if (user.role === "Leader") {
+        document.getElementById("displayEmail").innerText = user.email || user.name;
+        document.getElementById("displayRole").innerText = user.role;
+        document.getElementById("displayBatch").innerText = user.batch || "Team Kenes";
         
-        var studentRowIndex = -1;
-        for (var i = 1; i < data.length; i++) {
-          if (data[i][0] === studentName) {
-            studentRowIndex = i + 1;
-            break;
-          }
-        }
+        document.getElementById("attendanceContainer").style.display = "block";
+        loadTeamRoster(user.batch || "Team Kenes");
+    } else {
+        const mainContainer = document.getElementById("mainContainer");
+        if (mainContainer) mainContainer.classList.add("wide");
         
-        if (studentRowIndex === -1) {
-          batchSheet.appendRow([studentName]);
-          studentRowIndex = batchSheet.getLastRow();
-        }
-        
-        batchSheet.getRange(studentRowIndex, dateColumnIndex).setValue(status);
-      }
-      return createJsonResponse({ success: true, message: "Attendance recorded successfully!" });
+        document.getElementById("studentWelcomeText").innerText = `Welcome, ${user.name || user.email}!`;
+        document.getElementById("studentContainer").style.display = "block";
+        renderStudentChart("line");
     }
-
-    return createJsonResponse({ success: false, message: "Unknown action." });
-
-  } catch(error) {
-    return createJsonResponse({ success: false, message: error.toString() });
-  }
 }
 
-function createJsonResponse(outputObject) {
-  return ContentService.createTextOutput(JSON.stringify(outputObject))
-                        .setMimeType(ContentService.MimeType.JSON);
+// --- BACKEND DISPATCHER ---
+async function sendToGoogle(payload) {
+    try {
+        const targetUrl = `${WEB_APP_URL}?payload=${encodeURIComponent(JSON.stringify(payload))}`;
+        const response = await fetch(targetUrl, {
+            method: "GET",
+            redirect: "follow"
+        });
+        const rawText = await response.text();
+        return JSON.parse(rawText);
+    } catch (error) {
+        console.error("sendToGoogle error:", error);
+        return { success: false, message: "Network connection or backend deployment error." };
+    }
+}
+
+// --- EVENT HANDLERS ---
+async function handleLogin(e) {
+    if (e) e.preventDefault();
+
+    const email = document.getElementById("loginGmail").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+    const statusDiv = document.getElementById("authStatus");
+
+    if (!email || !password) {
+        if (statusDiv) statusDiv.innerText = "Please enter both Email and Password.";
+        return;
+    }
+
+    if (statusDiv) statusDiv.innerText = "Verifying credentials...";
+
+    const response = await sendToGoogle({
+        action: "login",
+        email: email,
+        password: password
+    });
+
+    if (response.success) {
+        if (statusDiv) statusDiv.innerText = "";
+        routeUser(response.user);
+    } else {
+        if (statusDiv) statusDiv.innerText = response.message || "Invalid credentials.";
+    }
+}
+
+async function handleRegistration(e) {
+    if (e) e.preventDefault();
+
+    const statusDiv = document.getElementById("signupStatus");
+    const name = document.getElementById("signupName").value.trim();
+    const email = document.getElementById("signupGmail").value.trim();
+    const password = document.getElementById("signupPassword").value;
+
+    if (!name || !email || !password) {
+        if (statusDiv) statusDiv.innerText = "Please fill in all required fields.";
+        return;
+    }
+
+    const payload = {
+        action: "register",
+        name: name,
+        email: email,
+        password: password,
+        school: document.getElementById("signupSchool").value,
+        role: document.getElementById("signupRole").value,
+        batch: document.getElementById("signupBatch").value
+    };
+
+    if (statusDiv) statusDiv.innerText = "Creating account...";
+
+    const response = await sendToGoogle(payload);
+
+    if (response.success) {
+        if (statusDiv) statusDiv.innerText = "";
+        routeUser(payload);
+    } else {
+        if (statusDiv) statusDiv.innerText = response.message || "Registration failed.";
+    }
+}
+
+async function loadTeamRoster(batchName) {
+    const studentListContainer = document.getElementById("studentList");
+    if (!studentListContainer) return;
+
+    studentListContainer.innerHTML = "<p style='color:white;'>Loading roster from database...</p>";
+
+    const response = await sendToGoogle({
+        action: "getStudents",
+        batch: batchName
+    });
+
+    let roster = [
+        { id: "S1", name: "Druthi K" },
+        { id: "S2", name: "Charvi" },
+        { id: "S3", name: "Aaron" },
+        { id: "S4", name: "Unnathi" }
+    ];
+
+    if (response.success && response.students && response.students.length > 0) {
+        roster = response.students;
+    }
+
+    let html = "";
+    roster.forEach(student => {
+        html += `
+            <div class="attendance-row" data-id="${student.id}" data-name="${student.name}">
+                <span>${student.name}</span>
+                <select class="attendance-status">
+                    <option value="Present">Present</option>
+                    <option value="Absent">Absent</option>
+                </select>
+            </div>
+        `;
+    });
+
+    studentListContainer.innerHTML = html;
+}
+
+async function handleSubmitAttendance() {
+    const statusDiv = document.getElementById("attendanceStatus");
+    const rows = document.querySelectorAll(".attendance-row");
+    const attendanceData = [];
+
+    rows.forEach(row => {
+        attendanceData.push({
+            studentId: row.getAttribute("data-id"),
+            studentName: row.getAttribute("data-name"),
+            status: row.querySelector(".attendance-status").value
+        });
+    });
+
+    if (statusDiv) statusDiv.innerText = "Submitting attendance record...";
+
+    const response = await sendToGoogle({
+        action: "submitAttendance",
+        batch: currentUser ? currentUser.batch : "Team Kenes",
+        date: new Date().toISOString().split("T")[0],
+        records: attendanceData
+    });
+
+    if (response.success) {
+        if (statusDiv) statusDiv.innerText = "Attendance submitted successfully!";
+    } else {
+        if (statusDiv) statusDiv.innerText = response.message || "Failed to submit attendance.";
+    }
+}
+
+function renderStudentChart(type) {
+    const ctx = document.getElementById("attendanceChart");
+    if (!ctx) return;
+
+    if (chartInstance) chartInstance.destroy();
+
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const attendanceDataPoints = [1, 1, 0, 1, 1, 1];
+
+    Chart.defaults.color = "#ffffff";
+
+    if (type === "line") {
+        chartInstance = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: days,
+                datasets: [{
+                    label: "Attendance Status",
+                    data: attendanceDataPoints,
+                    borderColor: "#38bdf8",
+                    backgroundColor: "rgba(56, 189, 248, 0.3)",
+                    borderWidth: 3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { ticks: { color: '#ffffff' } },
+                    y: {
+                        min: 0, max: 1,
+                        ticks: {
+                            stepSize: 1, color: '#ffffff',
+                            callback: val => val === 1 ? "Present" : "Absent"
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        chartInstance = new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: ["Present", "Absent"],
+                datasets: [{
+                    data: [5, 1],
+                    backgroundColor: ["#22c55e", "#ef4444"]
+                }]
+            }
+        });
+    }
 }
