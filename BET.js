@@ -5,7 +5,9 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx3_NGvZtAVbZLEH1FQ
 
 let currentUser = null;
 let chartInstance = null;
-
+function isValidGmail(email) {
+    return /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email.trim());
+}
 // --- GLOBAL PAGE NAVIGATION ---
 window.showPage1 = function() {
     document.getElementById("page2").style.display = "none";
@@ -96,7 +98,10 @@ async function handleLogin(e) {
         if (statusDiv) statusDiv.innerText = "Please enter both Email and Password.";
         return;
     }
-
+    if (!isValidGmail(email)) {
+    if (statusDiv) statusDiv.innerText = "Please enter a valid Gmail address.";
+    return;
+}
     if (statusDiv) statusDiv.innerText = "Verifying credentials...";
 
     const response = await sendToGoogle({
@@ -125,7 +130,10 @@ async function handleRegistration(e) {
         if (statusDiv) statusDiv.innerText = "Please fill in all required fields.";
         return;
     }
-
+    if (!isValidGmail(email)) {
+    if (statusDiv) statusDiv.innerText = "Please enter a valid Gmail address.";
+    return;
+}
     const payload = {
         action: "register",
         name: name,
