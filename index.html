@@ -173,8 +173,74 @@ function togglePassword() {
 
     <!-- STUDENT DASHBOARD -->
    <button onclick="window.location.href='index.html'">
-    🏠 Back to Home
-</button>
-<script src="BET.js"></script>
+
+<script>
+
+let present = 0;
+let absent = 0;
+
+let attendanceChart;
+
+function createAttendanceChart() {
+
+    const ctx = document.getElementById("attendanceChart");
+
+    attendanceChart = new Chart(ctx, {
+        type: "pie",
+
+        data: {
+            labels: ["Present", "Absent"],
+
+            datasets: [{
+                data: [present, absent]
+            }]
+        },
+
+        options: {
+            responsive: true,
+
+            plugins: {
+                legend: {
+                    position: "bottom"
+                }
+            }
+        }
+    });
+}
+
+
+function updateAttendanceChart() {
+
+    attendanceChart.data.datasets[0].data = [
+        present,
+        absent
+    ];
+
+    attendanceChart.update();
+
+    document.getElementById("presentCount").innerText = present;
+    document.getElementById("absentCount").innerText = absent;
+}
+
+
+// Example:
+// If a student is marked present:
+function markPresent() {
+    present++;
+    updateAttendanceChart();
+}
+
+// If a student is marked absent:
+function markAbsent() {
+    absent++;
+    updateAttendanceChart();
+}
+
+
+createAttendanceChart();
+
+</script>
+
+   
 </body>
 </html>
