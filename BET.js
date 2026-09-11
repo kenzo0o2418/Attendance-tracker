@@ -68,15 +68,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// --- ROUTING ENGINE (HANDLES LEADER / TEACHER / STUDENT ROLES) ---
+// --- ROUTING ENGINE WITH HARDENED ROLE MATCHING ---
 function routeUser(user) {
     currentUser = user;
     document.getElementById("authContainer").style.display = "none";
 
-    // Normalize role string (case-insensitive & whitespace removal)
-    const normalizedRole = String(user.role || "").trim().toLowerCase();
+    // Normalize role string for flexible comparison
+    const rawRole = String(user.role || "").trim().toLowerCase();
+    console.log("User object passed to router:", user);
 
-    if (normalizedRole === "leader" || normalizedRole === "teacher") {
+    // Matches 'leader', 'teacher', 'admin', 'staff', or 'leader / teacher'
+    if (rawRole.includes("leader") || rawRole.includes("teacher") || rawRole.includes("admin")) {
         document.getElementById("displayEmail").innerText = user.email || user.name;
         document.getElementById("displayRole").innerText = user.role || "Teacher";
         document.getElementById("displayBatch").innerText = user.batch || "Team Kenes";
