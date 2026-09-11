@@ -40,6 +40,23 @@
             border: none;
             outline: none;
             font-size: 14px;
+            width: 100%;
+        }
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .password-wrapper input {
+            padding-right: 45px;
+        }
+        .toggle-pwd-btn {
+            position: absolute;
+            right: 10px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
         }
         button.btn {
             width: 100%;
@@ -67,7 +84,7 @@
             border-radius: 10px;
             margin-bottom: 10px;
         }
-        .attendance-row select { padding: 5px 10px; border-radius: 5px; border: none; }
+        .attendance-row select { padding: 5px 10px; border-radius: 5px; border: none; width: auto; }
         .info-card {
             background: rgba(255, 255, 255, 0.1);
             padding: 12px;
@@ -91,23 +108,13 @@
                 <label for="loginGmail">Email</label>
                 <input type="email" id="loginGmail" placeholder="Enter your email">
             </div>
-           <label>Password:</label>
-<div>
-  <input type="password" id="password" placeholder="Enter password">
-  <button type="button" onclick="togglePassword()">👁️</button>
-</div>
-
-<script>
-function togglePassword() {
-  const password = document.getElementById("password");
-
-  if (password.type === "password") {
-    password.type = "text";
-  } else {
-    password.type = "password";
-  }
-}
-</script>
+            <div class="input-group">
+                <label for="loginPassword">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="loginPassword" placeholder="Enter password">
+                    <button type="button" class="toggle-pwd-btn" onclick="togglePassword('loginPassword')">👁️</button>
+                </div>
+            </div>
             
             <button class="btn" id="loginBtn">Login</button>
             <button class="btn btn-secondary" onclick="showPage2()">Need an account? Register</button>
@@ -127,7 +134,10 @@ function togglePassword() {
             </div>
             <div class="input-group">
                 <label for="signupPassword">Password</label>
-                <input type="password" id="signupPassword" placeholder="Create password">
+                <div class="password-wrapper">
+                    <input type="password" id="signupPassword" placeholder="Create password">
+                    <button type="button" class="toggle-pwd-btn" onclick="togglePassword('signupPassword')">👁️</button>
+                </div>
             </div>
             <div class="input-group">
                 <label for="signupSchool">School</label>
@@ -168,79 +178,25 @@ function togglePassword() {
         </div>
         <div id="studentList"></div>
         <button class="btn" id="submitAttendanceBtn">Submit Attendance</button>
+        <button class="btn btn-secondary" onclick="logout()">Logout</button>
         <div id="attendanceStatus" class="status-msg"></div>
     </div>
 
     <!-- STUDENT DASHBOARD -->
-   <button onclick="window.location.href='index.html'">
+    <div id="studentContainer" style="display: none;">
+        <h2 id="studentWelcomeText">Welcome!</h2>
+        <div class="input-group">
+            <label for="chartType">Chart View</label>
+            <select id="chartType">
+                <option value="line">Line Graph</option>
+                <option value="pie">Pie Chart</option>
+            </select>
+        </div>
+        <canvas id="attendanceChart" style="max-height: 300px;"></canvas>
+        <button class="btn btn-secondary" onclick="logout()" style="margin-top: 15px;">Logout</button>
+    </div>
+</div>
 
-<script>
-
-let present = 0;
-let absent = 0;
-
-let attendanceChart;
-
-function createAttendanceChart() {
-
-    const ctx = document.getElementById("attendanceChart");
-
-    attendanceChart = new Chart(ctx, {
-        type: "pie",
-
-        data: {
-            labels: ["Present", "Absent"],
-
-            datasets: [{
-                data: [present, absent]
-            }]
-        },
-
-        options: {
-            responsive: true,
-
-            plugins: {
-                legend: {
-                    position: "bottom"
-                }
-            }
-        }
-    });
-}
-
-
-function updateAttendanceChart() {
-
-    attendanceChart.data.datasets[0].data = [
-        present,
-        absent
-    ];
-
-    attendanceChart.update();
-
-    document.getElementById("presentCount").innerText = present;
-    document.getElementById("absentCount").innerText = absent;
-}
-
-
-// Example:
-// If a student is marked present:
-function markPresent() {
-    present++;
-    updateAttendanceChart();
-}
-
-// If a student is marked absent:
-function markAbsent() {
-    absent++;
-    updateAttendanceChart();
-}
-
-
-createAttendanceChart();
-
-</script>
-
-   
+<script src="BET.js"></script>
 </body>
 </html>
