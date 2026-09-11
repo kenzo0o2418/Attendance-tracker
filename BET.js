@@ -1,30 +1,20 @@
 // ==========================================
 // Web App Backend Config
 // ==========================================
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzno5aSRM3kVocoGVvtpcsbR4RlftEAQkm5fKlgq7IltAi3MbzNVcWxTJuUNFT7oMRH/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx3_NGvZtAVbZLEH1FQnrRuRX0_Ut9RgpNVqlqmgZCJceU64xOhnZf7F3caxxzlKNr3/exec";
 
 let currentUser = null;
 let chartInstance = null;
 
-// --- PASSWORD TOGGLE FUNCTION ---
-window.togglePassword = function(inputId) {
-    const input = document.getElementById(inputId);
-    if (input) {
-        input.type = input.type === "password" ? "text" : "password";
-    }
-};
-
-// --- NAVIGATION & AUTH HELPERS ---
+// --- GLOBAL PAGE NAVIGATION ---
 window.showPage1 = function() {
     document.getElementById("page2").style.display = "none";
     document.getElementById("page1").style.display = "block";
-    clearAuthInputs();
 };
 
 window.showPage2 = function() {
     document.getElementById("page1").style.display = "none";
     document.getElementById("page2").style.display = "block";
-    clearAuthInputs();
 };
 
 window.clearAuthInputs = function() {
@@ -33,20 +23,8 @@ window.clearAuthInputs = function() {
     if (document.getElementById("signupName")) document.getElementById("signupName").value = "";
     if (document.getElementById("signupGmail")) document.getElementById("signupGmail").value = "";
     if (document.getElementById("signupPassword")) document.getElementById("signupPassword").value = "";
-    
-    const authStatus = document.getElementById("authStatus");
-    const signupStatus = document.getElementById("signupStatus");
-    if (authStatus) authStatus.innerText = "";
-    if (signupStatus) signupStatus.innerText = "";
-};
-
-window.logout = function() {
-    currentUser = null;
-    document.getElementById("attendanceContainer").style.display = "none";
-    document.getElementById("studentContainer").style.display = "none";
-    document.getElementById("mainContainer").classList.remove("wide");
-    document.getElementById("authContainer").style.display = "block";
-    showPage1();
+    const statusDiv = document.getElementById("authStatus");
+    if (statusDiv) statusDiv.innerText = "";
 };
 
 // --- DOM INITIALIZATION ---
@@ -102,7 +80,7 @@ async function sendToGoogle(payload) {
         return JSON.parse(rawText);
     } catch (error) {
         console.error("sendToGoogle error:", error);
-        return { success: false, message: "Network error or backend deployment issue." };
+        return { success: false, message: "Network connection or backend deployment error." };
     }
 }
 
@@ -110,15 +88,19 @@ async function sendToGoogle(payload) {
 async function handleLogin(e) {
     if (e) e.preventDefault();
 
-    const email = document.getElementById("loginGmail").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
-    const statusDiv = document.getElementById("authStatus");
+const email = document.getElementById("loginGmail").value.trim();
+const password = document.getElementById("loginPassword").value.trim();
+const statusDiv = document.getElementById("authStatus");
 
-    if (!email || !password) {
-        if (statusDiv) statusDiv.innerText = "Please enter both Email and Password.";
-        return;
-    }
+if (!email || !password) {
+    if (statusDiv) statusDiv.innerText = "Please enter both Email and Password.";
+    return;
+}
 
+if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email)) {
+    if (statusDiv) statusDiv.innerText = "Please enter a valid Gmail address.";
+    return;
+}
     if (statusDiv) statusDiv.innerText = "Verifying credentials...";
 
     const response = await sendToGoogle({
@@ -138,15 +120,20 @@ async function handleLogin(e) {
 async function handleRegistration(e) {
     if (e) e.preventDefault();
 
-    const statusDiv = document.getElementById("signupStatus");
-    const name = document.getElementById("signupName").value.trim();
-    const email = document.getElementById("signupGmail").value.trim();
-    const password = document.getElementById("signupPassword").value;
+const statusDiv = document.getElementById("signupStatus");
+const name = document.getElementById("signupName").value.trim();
+const email = document.getElementById("signupGmail").value.trim();
+const password = document.getElementById("signupPassword").value;
 
-    if (!name || !email || !password) {
-        if (statusDiv) statusDiv.innerText = "Please fill in all required fields.";
-        return;
-    }
+if (!name || !email || !password) {
+    if (statusDiv) statusDiv.innerText = "Please fill in all required fields.";
+    return;
+}
+
+if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email)) {
+    if (statusDiv) statusDiv.innerText = "Please enter a valid Gmail address.";
+    return;
+}
 
     const payload = {
         action: "register",
