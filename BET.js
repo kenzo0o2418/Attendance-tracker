@@ -1,7 +1,7 @@
 // ==========================================
 // Web App Backend Config
 // ==========================================
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx3_NGvZtAVbZLEH1FQnrRuRX0_Ut9RgpNVqlqmgZCJceU64xOhnZf7F3caxxzlKNr3/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzno5aSRM3kVocoGVvtpcsbR4RlftEAQkm5fKlgq7IltAi3MbzNVcWxTJuUNFT7oMRH/exec";
 
 let currentUser = null;
 let chartInstance = null;
@@ -68,14 +68,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// --- ROUTING ENGINE ---
+// --- ROUTING ENGINE (HANDLES LEADER / TEACHER / STUDENT ROLES) ---
 function routeUser(user) {
     currentUser = user;
     document.getElementById("authContainer").style.display = "none";
 
-    if (user.role === "Leader") {
+    // Normalize role string (case-insensitive & whitespace removal)
+    const normalizedRole = String(user.role || "").trim().toLowerCase();
+
+    if (normalizedRole === "leader" || normalizedRole === "teacher") {
         document.getElementById("displayEmail").innerText = user.email || user.name;
-        document.getElementById("displayRole").innerText = user.role;
+        document.getElementById("displayRole").innerText = user.role || "Teacher";
         document.getElementById("displayBatch").innerText = user.batch || "Team Kenes";
         
         document.getElementById("attendanceContainer").style.display = "block";
