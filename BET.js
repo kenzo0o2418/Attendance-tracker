@@ -1,269 +1,202 @@
-// ==========================================
-// Web App Backend Config
-// ==========================================
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx3_NGvZtAVbZLEH1FQnrRuRX0_Ut9RgpNVqlqmgZCJceU64xOhnZf7F3caxxzlKNr3/exec";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FET Attendance Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4, #9333ea);
+            background-size: 300% 300%;
+            animation: bgMove 12s infinite alternate;
+        }
+        @keyframes bgMove { 0% { background-position: left; } 100% { background-position: right; } }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.25);
+            color: white;
+            transition: max-width 0.4s ease;
+        }
+        .container.wide { max-width: 750px; }
+        h1, h2 { text-align: center; margin-bottom: 15px; }
+        .input-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .input-group label { margin-bottom: 5px; font-weight: 500; }
+        .input-group input, .input-group select {
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            width: 100%;
+        }
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .password-wrapper input {
+            padding-right: 45px;
+        }
+        .toggle-pwd-btn {
+            position: absolute;
+            right: 10px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button.btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #2563eb, #06b6d4);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button.btn-secondary {
+            background: transparent;
+            border: 1px solid white;
+            margin-top: 8px;
+        }
+        .status-msg { text-align: center; margin-top: 10px; color: #fde047; font-size: 14px; }
+        .attendance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .attendance-row select { padding: 5px 10px; border-radius: 5px; border: none; width: auto; }
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
 
-let currentUser = null;
-let chartInstance = null;
+<div class="container" id="mainContainer">
+    <h1>FET Attendance System</h1>
 
-// --- GLOBAL PAGE NAVIGATION ---
-window.showPage1 = function() {
-    document.getElementById("page2").style.display = "none";
-    document.getElementById("page1").style.display = "block";
-};
+    <!-- AUTHENTICATION SECTION -->
+    <div id="authContainer">
+        <!-- LOGIN PAGE -->
+        <div id="page1">
+            <h2>Login</h2>
+            <div class="input-group">
+                <label for="loginGmail">Email</label>
+                <input type="email" id="loginGmail" placeholder="Enter your email">
+            </div>
+            <div class="input-group">
+                <label for="loginPassword">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="loginPassword" placeholder="Enter password">
+                    <button type="button" class="toggle-pwd-btn" onclick="togglePassword('loginPassword')">👁️</button>
+                </div>
+            </div>
+            
+            <button class="btn" id="loginBtn">Login</button>
+            <button class="btn btn-secondary" onclick="showPage2()">Need an account? Register</button>
+            <div id="authStatus" class="status-msg"></div>
+        </div>
 
-window.showPage2 = function() {
-    document.getElementById("page1").style.display = "none";
-    document.getElementById("page2").style.display = "block";
-};
-
-window.clearAuthInputs = function() {
-    if (document.getElementById("loginGmail")) document.getElementById("loginGmail").value = "";
-    if (document.getElementById("loginPassword")) document.getElementById("loginPassword").value = "";
-    if (document.getElementById("signupName")) document.getElementById("signupName").value = "";
-    if (document.getElementById("signupGmail")) document.getElementById("signupGmail").value = "";
-    if (document.getElementById("signupPassword")) document.getElementById("signupPassword").value = "";
-    const statusDiv = document.getElementById("authStatus");
-    if (statusDiv) statusDiv.innerText = "";
-};
-
-// --- DOM INITIALIZATION ---
-document.addEventListener("DOMContentLoaded", () => {
-    const loginBtn = document.getElementById("loginBtn");
-    if (loginBtn) loginBtn.addEventListener("click", handleLogin);
-
-    const signupBtn = document.getElementById("signupBtn");
-    if (signupBtn) signupBtn.addEventListener("click", handleRegistration);
-
-    const submitAttendanceBtn = document.getElementById("submitAttendanceBtn");
-    if (submitAttendanceBtn) submitAttendanceBtn.addEventListener("click", handleSubmitAttendance);
-
-    const chartTypeSelect = document.getElementById("chartType");
-    if (chartTypeSelect) {
-        chartTypeSelect.addEventListener("change", (e) => {
-            renderStudentChart(e.target.value);
-        });
-    }
-});
-
-// --- ROUTING ENGINE ---
-function routeUser(user) {
-    currentUser = user;
-    document.getElementById("authContainer").style.display = "none";
-
-    if (user.role === "Leader") {
-        document.getElementById("displayEmail").innerText = user.email || user.name;
-        document.getElementById("displayRole").innerText = user.role;
-        document.getElementById("displayBatch").innerText = user.batch || "Team Kenes";
-        
-        document.getElementById("attendanceContainer").style.display = "block";
-        loadTeamRoster(user.batch || "Team Kenes");
-    } else {
-        const mainContainer = document.getElementById("mainContainer");
-        if (mainContainer) mainContainer.classList.add("wide");
-        
-        document.getElementById("studentWelcomeText").innerText = `Welcome, ${user.name || user.email}!`;
-        document.getElementById("studentContainer").style.display = "block";
-        renderStudentChart("line");
-    }
-}
-
-// --- BACKEND DISPATCHER ---
-async function sendToGoogle(payload) {
-    try {
-        const targetUrl = `${WEB_APP_URL}?payload=${encodeURIComponent(JSON.stringify(payload))}`;
-        const response = await fetch(targetUrl, {
-            method: "GET",
-            redirect: "follow"
-        });
-        const rawText = await response.text();
-        return JSON.parse(rawText);
-    } catch (error) {
-        console.error("sendToGoogle error:", error);
-        return { success: false, message: "Network connection or backend deployment error." };
-    }
-}
-
-// --- EVENT HANDLERS ---
-async function handleLogin(e) {
-    if (e) e.preventDefault();
-
-    const email = document.getElementById("loginGmail").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
-    const statusDiv = document.getElementById("authStatus");
-
-    if (!email || !password) {
-        if (statusDiv) statusDiv.innerText = "Please enter both Email and Password.";
-        return;
-    }
-
-    if (statusDiv) statusDiv.innerText = "Verifying credentials...";
-
-    const response = await sendToGoogle({
-        action: "login",
-        email: email,
-        password: password
-    });
-
-    if (response.success) {
-        if (statusDiv) statusDiv.innerText = "";
-        routeUser(response.user);
-    } else {
-        if (statusDiv) statusDiv.innerText = response.message || "Invalid credentials.";
-    }
-}
-
-async function handleRegistration(e) {
-    if (e) e.preventDefault();
-
-    const statusDiv = document.getElementById("signupStatus");
-    const name = document.getElementById("signupName").value.trim();
-    const email = document.getElementById("signupGmail").value.trim();
-    const password = document.getElementById("signupPassword").value;
-
-    if (!name || !email || !password) {
-        if (statusDiv) statusDiv.innerText = "Please fill in all required fields.";
-        return;
-    }
-
-    const payload = {
-        action: "register",
-        name: name,
-        email: email,
-        password: password,
-        school: document.getElementById("signupSchool").value,
-        role: document.getElementById("signupRole").value,
-        batch: document.getElementById("signupBatch").value
-    };
-
-    if (statusDiv) statusDiv.innerText = "Creating account...";
-
-    const response = await sendToGoogle(payload);
-
-    if (response.success) {
-        if (statusDiv) statusDiv.innerText = "";
-        routeUser(payload);
-    } else {
-        if (statusDiv) statusDiv.innerText = response.message || "Registration failed.";
-    }
-}
-
-async function loadTeamRoster(batchName) {
-    const studentListContainer = document.getElementById("studentList");
-    if (!studentListContainer) return;
-
-    studentListContainer.innerHTML = "<p style='color:white;'>Loading roster from database...</p>";
-
-    const response = await sendToGoogle({
-        action: "getStudents",
-        batch: batchName
-    });
-
-    let roster = [
-        { id: "S1", name: "Druthi K" },
-        { id: "S2", name: "Charvi" },
-        { id: "S3", name: "Aaron" },
-        { id: "S4", name: "Unnathi" }
-    ];
-
-    if (response.success && response.students && response.students.length > 0) {
-        roster = response.students;
-    }
-
-    let html = "";
-    roster.forEach(student => {
-        html += `
-            <div class="attendance-row" data-id="${student.id}" data-name="${student.name}">
-                <span>${student.name}</span>
-                <select class="attendance-status">
-                    <option value="Present">Present</option>
-                    <option value="Absent">Absent</option>
+        <!-- REGISTRATION PAGE -->
+        <div id="page2" style="display: none;">
+            <h2>Register</h2>
+            <div class="input-group">
+                <label for="signupName">Full Name</label>
+                <input type="text" id="signupName" placeholder="Enter full name">
+            </div>
+            <div class="input-group">
+                <label for="signupGmail">Email</label>
+                <input type="email" id="signupGmail" placeholder="Enter email">
+            </div>
+            <div class="input-group">
+                <label for="signupPassword">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="signupPassword" placeholder="Create password">
+                    <button type="button" class="toggle-pwd-btn" onclick="togglePassword('signupPassword')">👁️</button>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="signupSchool">School</label>
+                <select id="signupSchool">
+                    <option value="Christ School Thandavapura">Christ School Thandavapura</option>
+                    <option value="St. Joseph School">St. Joseph School</option>
+                    <option value="JSS Public School">JSS Public School</option>
                 </select>
             </div>
-        `;
-    });
+            <div class="input-group">
+                <label for="signupRole">Role</label>
+                <select id="signupRole">
+                    <option value="Leader">Leader</option>
+                    <option value="Student">Student</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="signupBatch">Batch / Team</label>
+                <select id="signupBatch">
+                    <option value="Team Kenes">Team Kenes</option>
+                    <option value="Ann Team">Ann Team</option>
+                    <option value="Thanishka Team">Thanishka Team</option>
+                </select>
+            </div>
+            <button class="btn" id="signupBtn">Finish Registration</button>
+            <button class="btn btn-secondary" onclick="showPage1()">Back to Login</button>
+            <div id="signupStatus" class="status-msg"></div>
+        </div>
+    </div>
 
-    studentListContainer.innerHTML = html;
-}
+    <!-- LEADER DASHBOARD -->
+    <div id="attendanceContainer" style="display: none;">
+        <h2>Mark Attendance</h2>
+        <div class="info-card">
+            <p><strong>User:</strong> <span id="displayEmail"></span></p>
+            <p><strong>Role:</strong> <span id="displayRole"></span></p>
+            <p><strong>Batch:</strong> <span id="displayBatch"></span></p>
+        </div>
+        <div id="studentList"></div>
+        <button class="btn" id="submitAttendanceBtn">Submit Attendance</button>
+        <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        <div id="attendanceStatus" class="status-msg"></div>
+    </div>
 
-async function handleSubmitAttendance() {
-    const statusDiv = document.getElementById("attendanceStatus");
-    const rows = document.querySelectorAll(".attendance-row");
-    const attendanceData = [];
+    <!-- STUDENT DASHBOARD -->
+    <div id="studentContainer" style="display: none;">
+        <h2 id="studentWelcomeText">Welcome!</h2>
+        <div class="input-group">
+            <label for="chartType">Chart View</label>
+            <select id="chartType">
+                <option value="line">Line Graph</option>
+                <option value="pie">Pie Chart</option>
+            </select>
+        </div>
+        <canvas id="attendanceChart" style="max-height: 300px;"></canvas>
+        <button class="btn btn-secondary" onclick="logout()" style="margin-top: 15px;">Logout</button>
+    </div>
+</div>
 
-    rows.forEach(row => {
-        attendanceData.push({
-            studentId: row.getAttribute("data-id"),
-            studentName: row.getAttribute("data-name"),
-            status: row.querySelector(".attendance-status").value
-        });
-    });
-
-    if (statusDiv) statusDiv.innerText = "Submitting attendance record...";
-
-    const response = await sendToGoogle({
-        action: "submitAttendance",
-        batch: currentUser ? currentUser.batch : "Team Kenes",
-        date: new Date().toISOString().split("T")[0],
-        records: attendanceData
-    });
-
-    if (response.success) {
-        if (statusDiv) statusDiv.innerText = "Attendance submitted successfully!";
-    } else {
-        if (statusDiv) statusDiv.innerText = response.message || "Failed to submit attendance.";
-    }
-}
-
-function renderStudentChart(type) {
-    const ctx = document.getElementById("attendanceChart");
-    if (!ctx) return;
-
-    if (chartInstance) chartInstance.destroy();
-
-    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const attendanceDataPoints = [1, 1, 0, 1, 1, 1];
-
-    Chart.defaults.color = "#ffffff";
-
-    if (type === "line") {
-        chartInstance = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: days,
-                datasets: [{
-                    label: "Attendance Status",
-                    data: attendanceDataPoints,
-                    borderColor: "#38bdf8",
-                    backgroundColor: "rgba(56, 189, 248, 0.3)",
-                    borderWidth: 3,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: { ticks: { color: '#ffffff' } },
-                    y: {
-                        min: 0, max: 1,
-                        ticks: {
-                            stepSize: 1, color: '#ffffff',
-                            callback: val => val === 1 ? "Present" : "Absent"
-                        }
-                    }
-                }
-            }
-        });
-    } else {
-        chartInstance = new Chart(ctx, {
-            type: "pie",
-            data: {
-                labels: ["Present", "Absent"],
-                datasets: [{
-                    data: [5, 1],
-                    backgroundColor: ["#22c55e", "#ef4444"]
-                }]
-            }
-        });
-    }
-}
+<script src="BET.js"></script>
+</body>
+</html>
