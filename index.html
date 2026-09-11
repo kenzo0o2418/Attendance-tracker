@@ -47,9 +47,7 @@
             display: flex;
             align-items: center;
         }
-        .password-wrapper input {
-            padding-right: 45px;
-        }
+        .password-wrapper input { padding-right: 45px; }
         .toggle-pwd-btn {
             position: absolute;
             right: 10px;
@@ -92,6 +90,12 @@
             margin-bottom: 15px;
             font-size: 14px;
         }
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -123,6 +127,9 @@
 
         <!-- REGISTRATION PAGE -->
         <div id="page2" style="display: none;">
+            <div class="top-nav">
+                <button class="btn btn-secondary" style="width: auto; padding: 6px 12px; margin: 0;" onclick="showPage1()">← Back to Login</button>
+            </div>
             <h2>Register</h2>
             <div class="input-group">
                 <label for="signupName">Full Name</label>
@@ -150,7 +157,8 @@
             <div class="input-group">
                 <label for="signupRole">Role</label>
                 <select id="signupRole">
-                    <option value="Leader">Leader</option>
+                    <option value="Leader">Leader / Teacher</option>
+                    <option value="Teacher">Teacher</option>
                     <option value="Student">Student</option>
                 </select>
             </div>
@@ -163,13 +171,16 @@
                 </select>
             </div>
             <button class="btn" id="signupBtn">Finish Registration</button>
-            <button class="btn btn-secondary" onclick="showPage1()">Back to Login</button>
+            <button class="btn btn-secondary" onclick="showPage1()">← Back to Login</button>
             <div id="signupStatus" class="status-msg"></div>
         </div>
     </div>
 
-    <!-- LEADER DASHBOARD -->
+    <!-- LEADER / TEACHER DASHBOARD -->
     <div id="attendanceContainer" style="display: none;">
+        <div class="top-nav">
+            <button class="btn btn-secondary" style="width: auto; padding: 6px 12px; margin: 0;" onclick="logout()">← Back / Logout</button>
+        </div>
         <h2>Mark Attendance</h2>
         <div class="info-card">
             <p><strong>User:</strong> <span id="displayEmail"></span></p>
@@ -178,12 +189,15 @@
         </div>
         <div id="studentList"></div>
         <button class="btn" id="submitAttendanceBtn">Submit Attendance</button>
-        <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        <button class="btn btn-secondary" onclick="logout()">← Logout to Main Menu</button>
         <div id="attendanceStatus" class="status-msg"></div>
     </div>
 
     <!-- STUDENT DASHBOARD -->
     <div id="studentContainer" style="display: none;">
+        <div class="top-nav">
+            <button class="btn btn-secondary" style="width: auto; padding: 6px 12px; margin: 0;" onclick="logout()">← Back / Logout</button>
+        </div>
         <h2 id="studentWelcomeText">Welcome!</h2>
         <div class="input-group">
             <label for="chartType">Chart View</label>
@@ -193,7 +207,7 @@
             </select>
         </div>
         <canvas id="attendanceChart" style="max-height: 300px;"></canvas>
-        <button class="btn btn-secondary" onclick="logout()" style="margin-top: 15px;">Logout</button>
+        <button class="btn btn-secondary" onclick="logout()" style="margin-top: 15px;">← Logout to Main Menu</button>
     </div>
 </div>
 
