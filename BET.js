@@ -1,7 +1,7 @@
 // ==========================================
 // Web App Backend Config
 // ==========================================
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzno5aSRM3kVocoGVvtpcsbR4RlftEAQkm5fKlgq7IltAi3MbzNVcWxTJuUNFT7oMRH/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzz8OVNHavBboyPIXbybl4E8LPR979pA85W-3zdVn0mhtQInA0InZNvYDFyekt8wZOP/exec";
 
 let currentUser = null;
 let chartInstance = null;
